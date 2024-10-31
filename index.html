@@ -152,7 +152,7 @@
 
         <div class="input-group">
             <label for="key">Key:</label>
-            <input type="text" id="key" value="-2,1,-1.5,1.5,100">
+            <input type="text" id="key" value="-0.897875,-0.89215625,-0.24560625000000008,-0.23851875000000008,100">
         </div>
 
         <div class="input-group">
@@ -323,7 +323,7 @@
         function decryptText() {
             //const encryptedText = document.getElementById("outputText").textContent.replace("Verschlüsselt: ", "");
             const encryptedText = document.getElementById("inputText").value;
-            key = parseNumbers(document.getElementById("key").value);
+            const key = parseNumbers(document.getElementById("key").value);
             const fractalMatrix = getFractalMatrix(key.xmin, key.xmax, key.ymin, key.ymax);
             // TODO Matrix 4x drehen, um Randbereichsbrobleme zu verhindern
             // "Mehrfachverschlüsselung" mit fraktalen Variationen
@@ -405,6 +405,13 @@
         canvas.addEventListener("mousedown", startSelection);
         canvas.addEventListener("mousemove", updateSelection);
         canvas.addEventListener("mouseup", endSelection);
+
+        // Hole Key vom Inputfeld
+        const key = parseNumbers(document.getElementById("key").value);
+        fractalSettings.xmin = key.xmin;
+        fractalSettings.xmax = key.xmax;
+        fractalSettings.ymin = key.ymin;
+        fractalSettings.ymax = key.ymax;
 
         updateFractal();
 
