@@ -414,15 +414,15 @@ Borg auf dem Schiff;Data hat Schiffscomputer mit fraktalem Code vor Borg-Zugriff
             document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + event.target.value;
         });
 
-        encryptText();
-        
         // Hole Key vom Inputfeld
         const key = parseNumbers(document.getElementById("key").value);
         fractalSettings.xmin = key.xmin;
         fractalSettings.xmax = key.xmax;
         fractalSettings.ymin = key.ymin;
         fractalSettings.ymax = key.ymax;
-
+        
+        encryptText();
+        
         updateFractal();
     </script>
 </body>
