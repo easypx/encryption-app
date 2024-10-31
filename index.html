@@ -408,6 +408,14 @@ Borg auf dem Schiff;Data hat Schiffscomputer mit fraktalem Code vor Borg-Zugriff
         canvas.addEventListener("mousemove", updateSelection);
         canvas.addEventListener("mouseup", endSelection);
 
+        document.getElementById("iterations").addEventListener("input", function (event) {
+            console.log("Neuer Wert:", event.target.value);
+            // Weitere Aktionen mit dem neuen Wert können hier hinzugefügt werden
+            document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + event.target.value;
+        });
+
+        encryptText();
+        
         // Hole Key vom Inputfeld
         const key = parseNumbers(document.getElementById("key").value);
         fractalSettings.xmin = key.xmin;
@@ -416,12 +424,6 @@ Borg auf dem Schiff;Data hat Schiffscomputer mit fraktalem Code vor Borg-Zugriff
         fractalSettings.ymax = key.ymax;
 
         updateFractal();
-
-        document.getElementById("iterations").addEventListener("input", function (event) {
-            console.log("Neuer Wert:", event.target.value);
-            // Weitere Aktionen mit dem neuen Wert können hier hinzugefügt werden
-            document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + event.target.value;
-        });
     </script>
 </body>
 
