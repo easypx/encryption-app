@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraktaler Verschlüsselungscode (Star Trek 8, sicher vor Borg)</title>
+    <style>
+        /* Allgemeine Stilregeln */
+        body {
+            /*background-image: url("/home/lubuntu/Downloads/Enterprise-E_im_Orbit_der_Erde_2063.webp");*/
+            background-image: linear-gradient(rgb(0, 0, 0), rgb(33, 30, 46));
+            background-position: center;
+            /* Center the image */
+            background-repeat: no-repeat;
+            /* Do not repeat the image */
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Container für das Fraktal und Eingabefelder */
+        .container {
+            display: flex;
+            flex-direction: column;
+            /* Vertikale Ausrichtung */
+            align-items: stretch;
+            /* Elemente dehnen, um die Containerbreite zu nutzen */
+            background-color: #121212;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+
+
+        /* Container für Eingabefelder und Buttons */
+        .input-group {
+            margin-bottom: 15px;
+            /* Abstand zwischen den Gruppen */
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            /* Abstand zum Eingabefeld */
+            color: #ffffff;
+        }
+
+        .input-group input[type="number"],
+        .input-group input[type="text"],
+        .input-group textarea {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #222;
+            color: #ffffff;
+            margin-top: 10px;
+        }
+
+        /* Button-Stile spezifischer ansprechen */
+        .input-group button {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            background-color: #6200ee;
+            /* Primärfarbe für Buttons */
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            margin-right: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        textarea {
+            resize: both;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+
+        /* Stil für den Ausgabetext */
+        #outputText,
+        #key {
+
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        /* Überschriften */
+        h1,
+        h2,
+        h3 {
+            color: #ffffff;
+            /* Helle Schriftfarbe für Überschriften */
+        }
+
+        /* Spezieller Stil für die Fehlermeldungen */
+        .error {
+            color: #ff4081;
+            /* Rote Farbe für Fehler */
+        }
+
+        p.center {
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>Fraktaler Verschlüsselungscode</h1>
+
+        <div class="input-group" hidden>
+            <label for="zoom">Zoom:</label>
+            <input type="number" id="zoom" value="1">
+        </div>
+
+        <div class="input-group">
+            <label for="iterations">Iterationen:</label>
+            <input type="number" id="iterations" value="100">
+        </div>
+
+        <div class="input-group">
+            <label for="inputText">Text zur Ver-/Entschlüsselung:</label>
+            <textarea id="inputText" placeholder="Text zum Verschlüsseln"
+                rows="4">Ein Fraktaler Verschlüsselungscode ist eine sichere Methode zum Sperren des Zugangs zu einem Computer. Der Code basiert auf fraktalen Algorithmen und ist somit kaum von Dritten zu entschlüsseln.</textarea>
+        </div>
+
+        <div class="input-group">
+            <label for="key">Key:</label>
+            <input type="text" id="key" value="-2,1,-1.5,1.5,100">
+        </div>
+
+        <div class="input-group">
+            <button onclick="encryptText()">Verschlüsseln</button>
+            <button onclick="decryptText()">Entschlüsseln</button>
+        </div>
+
+        <div class="input-group">
+            <label for="outputText">Output:</label>
+            <p id="outputText"></p>
+        </div>
+        <p>Wähle einen komplexen Bereich mit der Maus</p>
+        <canvas id="canvas" width="400" height="400"></canvas>
+        <div class="input-group">
+            <button onclick="resetFractal()">Reset</button>
+        </div>
+        <p class="center">
+            <a href="https://memory-alpha.fandom.com/de/wiki/Fraktaler_Verschl%C3%BCsselungscode" target="_blank"
+                style="color: #4a90e2;">
+                Link zur fraktalen Verschlüsselung auf Memory Alpha
+            </a>
+        </p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
+        let isSelecting = false;
+        let startX, startY, endX, endY;
+        function resetFractal() {
+            fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
+            updateFractal();
+            document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + getInputs().iterations;
+
+        }
+        function drawMandelbrot(xmin, xmax, ymin, ymax, zoom, maxIter) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const imageData = ctx.createImageData(width, height);
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let real = xmin + (x / zoom) * (xmax - xmin) / width;
+                    let imag = ymin + (y / zoom) * (ymax - ymin) / height;
+                    let zx = 0, zy = 0, iter = 0;
+
+                    while (zx * zx + zy * zy <= 4 && iter < maxIter) {
+                        let tmp = zx * zx - zy * zy + real;
+                        zy = 2 * zx * zy + imag;
+                        zx = tmp;
+                        iter++;
+                    }
+
+                    const color = getColor(iter, maxIter);
+                    const pixelIndex = (y * width + x) * 4;
+                    imageData.data[pixelIndex] = color[0];
+                    imageData.data[pixelIndex + 1] = color[1];
+                    imageData.data[pixelIndex + 2] = color[2];
+                    imageData.data[pixelIndex + 3] = 255;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+
+        function getColor(iter, maxIter) {
+            if (iter === maxIter) return [0, 0, 0]; // Schwarz für Punkte im Fraktal
+
+            // Normalisiere den Wert der Iterationen zwischen 0 und 1
+            const ratio = iter / maxIter;
+
+            // Berechnung der RGB-Werte basierend auf dem spektralen Verlauf
+            let r, g, b;
+
+            if (ratio < 0.5) {
+                r = Math.floor(255 * (ratio * 2)); // Rot steigt von 0 auf 255
+                g = Math.floor(255 * (1 - ratio * 2)); // Grün sinkt von 255 auf 0
+                b = 0; // Blau bleibt 0
+            } else {
+                r = Math.floor(255 * (1 - (ratio - 0.5) * 2)); // Rot sinkt von 255 auf 0
+                g = 0; // Grün bleibt 0
+                b = Math.floor(255 * ((ratio - 0.5) * 2)); // Blau steigt von 0 auf 255
+            }
+
+            return [r, g, b];
+        }
+
+
+        function getInputs() {
+            return {
+                zoom: parseFloat(document.getElementById("zoom").value),
+                iterations: parseInt(document.getElementById("iterations").value, 10)
+            };
+        }
+
+        function rotateMatrix90(matrix) {
+            // Rotiert die Matrix um 90 Grad
+            const size = matrix.length;
+            let rotated = Array.from(Array(size), () => Array(size).fill(0));
+
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    rotated[j][size - 1 - i] = matrix[i][j];
+                }
+            }
+            return rotated;
+        }
+
+        function encryptWithRotations(text, xmin, xmax, ymin, ymax) {
+            // Original-Matrix erstellen
+            let baseMatrix = getFractalMatrix(xmin, xmax, ymin, ymax);
+
+            // 3 weitere rotierte Matrizen erzeugen
+            let matrix90 = rotateMatrix90(baseMatrix);
+            let matrix180 = rotateMatrix90(matrix90);
+            let matrix270 = rotateMatrix90(matrix180);
+
+            // Mehrfach verschlüsseln
+            let encryptedText = encrypt(text, baseMatrix); // 1. Durchlauf
+            encryptedText = encrypt(encryptedText, matrix90); // 2. Durchlauf
+            encryptedText = encrypt(encryptedText, matrix180); // 3. Durchlauf
+            encryptedText = encrypt(encryptedText, matrix270); // 4. Durchlauf
+
+            return encryptedText;
+        }
+
+        function encryptText() {
+            updateFractal();
+            const text = document.getElementById("inputText").value;
+            //const fractalMatrix = getFractalMatrix(startX, endX, startY, endY);
+
+            const fractalMatrix = getFractalMatrix(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax);
+            const encryptedText = text.split('').map((char, index) => {
+                const value = char.charCodeAt(0);
+                const fractalValue = fractalMatrix[index % fractalMatrix.length];
+                //return String.fromCharCode((value + fractalValue) % 256); // als Text
+                //return (value + fractalValue) % 256;  // Verschlüsselt als Zahl
+                return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // Hexadezimal
+            }).join(' ');
+            //document.getElementById("outputText").textContent = `Verschlüsselt: ${encryptedText}`;
+            document.getElementById("outputText").textContent = encryptedText;
+            key = parseNumbers(document.getElementById("key").value);
+            keySum = key.xmin + key.xmax + key.ymin + key.ymax;
+            //document.getElementById("keySumText").value = keySum;
+        }
+
+        function hexToInt(hexString) {
+            return hexString.split(' ').map(hex => parseInt(hex, 16));
+        }
+
+        function parseNumbers(inputString) {
+            // Splitte die Eingabezeichenkette am Komma
+            const numberStrings = inputString.split(',');
+
+            // Wandle die String-Werte in Zahlen um und speichere sie in einem Objekt
+            const result = {
+                xmin: parseFloat(numberStrings[0]),
+                xmax: parseFloat(numberStrings[1]),
+                ymin: parseFloat(numberStrings[2]),
+                ymax: parseFloat(numberStrings[3]),
+                //zoom: parseFloat(numberStrings[4]),
+                iterations: parseInt(numberStrings[4]) // Ganzzahl für die letzte Zahl
+            };
+
+            return result;
+        }
+        function decryptText() {
+            //const encryptedText = document.getElementById("outputText").textContent.replace("Verschlüsselt: ", "");
+            const encryptedText = document.getElementById("inputText").value;
+            key = parseNumbers(document.getElementById("key").value);
+            const fractalMatrix = getFractalMatrix(key.xmin, key.xmax, key.ymin, key.ymax);
+            // TODO Matrix 4x drehen, um Randbereichsbrobleme zu verhindern
+            // "Mehrfachverschlüsselung" mit fraktalen Variationen
+            const decryptedText = encryptedText.split(' ').map((char, index) => {
+                //const value = char.charCodeAt(0);
+                const value = hexToInt(char);
+                const fractalValue = fractalMatrix[index % fractalMatrix.length];
+                return String.fromCharCode((value - fractalValue + 256) % 256);
+            }).join('');
+            //document.getElementById("outputText").textContent = `Entschlüsselt: ${decryptedText}`;
+            document.getElementById("outputText").textContent = decryptedText;
+        }
+
+        function getFractalMatrix(xmin, xmax, ymin, ymax) {
+            const width = 200;
+            const height = 200;
+            //const { zoom, iterations } = getInputs();
+            const iterations = parseNumbers(document.getElementById("key").value).iterations;
+            let matrix = [];
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let real = xmin + (x / width) * (xmax - xmin);
+                    let imag = ymin + (y / height) * (ymax - ymin);
+                    let zx = 0, zy = 0, iter = 0;
+
+                    while (zx * zx + zy * zy <= 4 && iter < iterations) {
+                        let tmp = zx * zx - zy * zy + real;
+                        zy = 2 * zx * zy + imag;
+                        zx = tmp;
+                        iter++;
+                    }
+                    matrix.push(iter % 256);
+                }
+            }
+            return matrix;
+        }
+
+        function updateFractal() {
+            const { zoom, iterations } = getInputs();
+            drawMandelbrot(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax, zoom, iterations);
+        }
+
+        function startSelection(event) {
+            isSelecting = true;
+            startX = event.offsetX;
+            startY = event.offsetY;
+        }
+
+        function updateSelection(event) {
+            if (!isSelecting) return;
+            endX = event.offsetX;
+            endY = event.offsetY;
+            //document.getElementById("key").textContent = startX + "," + startY + "," + endX + "," + endY + "," + getInputs().zoom + "," + getInputs().iterations;
+            drawSelection();
+        }
+
+        function drawSelection() {
+            updateFractal();  // Fraktal neu zeichnen
+            ctx.strokeStyle = "red";
+            ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+        }
+
+        function endSelection() {
+            isSelecting = false;
+
+            // Berechne ausgewählte Koordinaten im Fraktalbereich
+            const width = canvas.width;
+            const height = canvas.height;
+            const { xmin, xmax, ymin, ymax } = fractalSettings;
+            fractalSettings.xmin = xmin + (startX / width) * (xmax - xmin);
+            fractalSettings.xmax = xmin + (endX / width) * (xmax - xmin);
+            fractalSettings.ymin = ymin + (startY / height) * (ymax - ymin);
+            fractalSettings.ymax = ymin + (endY / height) * (ymax - ymin);
+            document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + getInputs().iterations;
+            updateFractal();
+        }
+
+        canvas.addEventListener("mousedown", startSelection);
+        canvas.addEventListener("mousemove", updateSelection);
+        canvas.addEventListener("mouseup", endSelection);
+
+        updateFractal();
+
+        document.getElementById("iterations").addEventListener("input", function (event) {
+            console.log("Neuer Wert:", event.target.value);
+            // Weitere Aktionen mit dem neuen Wert können hier hinzugefügt werden
+            document.getElementById("key").value = fractalSettings.xmin + "," + fractalSettings.xmax + "," + fractalSettings.ymin + "," + fractalSettings.ymax + "," + event.target.value;
+        });
+    </script>
+</body>
+
+</html>
