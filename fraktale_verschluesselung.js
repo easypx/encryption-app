@@ -463,8 +463,8 @@ function endSelection() {
     if (containsNaN(key)) {
         //if ((startX == endX) || (startY == endY)) {
         showPopup("", "Bildausschnitt ist ungültig. Bitte mit der Maus ein Rechteck aufziehen. (NaN ist nicht erlaubt)", 0, 0, "error");
-        resetFractal();
-        updateFractal();
+        //resetFractal();
+        //updateFractal();
         return;
     }
 
