@@ -1,0 +1,299 @@
+/* Allgemeine Stilregeln */
+body {
+    /*background-image: url("/home/lubuntu/Desktop/encryption-app/starfleet_background.png");*/
+    background-image: linear-gradient(rgb(0, 0, 0), rgb(33, 30, 46));
+    background-position: center;
+    /* Center the image */
+    background-attachment: fixed;
+    /* Do not repeat the image */
+    background-color: #010101;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Container für das Fraktal und Eingabefelder */
+.container {
+    display: flex;
+    flex-direction: column;
+    /* Vertikale Ausrichtung */
+    align-items: stretch;
+    /* Elemente dehnen, um die Containerbreite zu nutzen */
+    background-color: #121212;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Container für Eingabefelder und Buttons */
+.input-group {
+    margin-bottom: 15px;
+    /* Abstand zwischen den Gruppen */
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    /* Abstand zum Eingabefeld */
+    color: #ffffff;
+}
+
+.input-group input[type="number"],
+.input-group input[type="text"],
+.input-group textarea,
+select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #222;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+/* Button-Stile spezifischer ansprechen */
+.default-button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background-color: #6200ee;
+    /* Primärfarbe für Buttons */
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+textarea {
+    resize: both;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+button:hover {
+    background-color: #3700b3;
+}
+
+.copy-button:hover {
+    background-color: #a3a3a3;
+}
+
+.default-round-button:hover {
+    background-color: #a3a3a3;
+}
+
+canvas {
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+
+/* Stil für den Ausgabetext */
+#outputText,
+#key {
+
+    padding: 10px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+/* Überschriften */
+h1,
+h2,
+h3 {
+    color: #ffffff;
+    /* Helle Schriftfarbe für Überschriften */
+}
+
+/* Spezieller Stil für die Fehlermeldungen */
+.error {
+    color: #ff4081;
+    /* Rote Farbe für Fehler */
+}
+
+p.center {
+    text-align: center;
+}
+
+/* Popup-Hintergrund */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Popup-Content */
+.popup-content {
+    position: relative;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: #fff;    
+    text-wrap: wrap;
+     /*Weiße Schriftfarbe */
+}
+
+/* Close-Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #fff;
+    z-index: 1001;
+    /* Höherer Z-Index für Sichtbarkeit */
+}
+
+/* Standardmäßig ausgeblendet */
+.hidden {
+    display: none;
+}
+
+.popup-content.error {
+    border: 2px solid #ff4081;
+    background-color: #440000;
+    /* Dunkelroter Hintergrund für Fehler-Popup */    
+}
+
+.popup-content.sucsess {
+    border: 2px solid #79ff40;
+    background-color: #0b4400;
+    word-break: break-all; /* Zeilenumbruch bei Wörtern ohne Leerzeichen */
+}
+
+.popup-content.hint {
+    border: 2px solid #fff940;
+    background-color: #444300;
+}
+
+.popup-content.default {
+    border: 2px solid #c0c0c0;
+    background-color: #3c3c3c;
+}
+
+.input-container {
+    display: flex;
+    gap: 20px;
+    /* Abstand zwischen den Feldern */
+    align-items: stretch;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Element auf volle Breite dehnen */
+    /*justify-content: center;
+     Zentriert den Inhalt horizontal */
+    /*align-items: center;
+     Zentriert den Inhalt vertikal */
+
+}
+
+.flex-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Element auf volle Breite dehnen */
+    /*justify-content: center;
+     Zentriert den Inhalt horizontal */
+    /*align-items: center;
+     Zentriert den Inhalt vertikal */
+
+}
+
+.textarea-container {
+    position: relative;
+    /* Ermöglicht die absolute Positionierung der Kinder */
+    display: flex;
+    /* Flexbox, um den Button zu positionieren */
+}
+
+.textarea-container textarea {
+    width: 100%;
+    /* Damit die textarea die gesamte Breite einnimmt */
+    /*resize: none;*/
+    /* Verhindert das Ändern der Größe der textarea */
+}
+
+.copy-button {
+    position: absolute;
+    top: 11px;
+    /*left: calc(100% - 37px);*/
+    right: 1px;
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    background-color: #3232326f;
+    /* Primärfarbe für Buttons */
+    color: #ffffff;
+    border: none;
+    border-radius: 18px;
+    padding: 10px;
+    /*margin-right: 10px;
+    margin-top: 10px;*/
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.default-round-button {
+    /*position: relative;
+    top: 11px;
+    left: calc(100% - 37px);
+    right: -20px;*/
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    background-color: #3232326f;
+    /* Primärfarbe für Buttons */
+    color: #ffffff;
+    border: none;
+    border-radius: 18px;
+    padding: 10px;
+    margin: 10px;
+    /*margin-right: 10px;
+    margin-top: 10px;*/
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.key-container {
+    position: relative;
+    /* Ermöglicht die absolute Positionierung der Kinder */
+    /*display: flex;*/
+    /* Flexbox, um den Button zu positionieren */
+}
+
+p.center {
+    text-align: center;
+}
+
+#app-version{
+    text-align: center;
+    font-size: small;
+}
+
