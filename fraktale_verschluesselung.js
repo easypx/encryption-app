@@ -14,6 +14,8 @@ let key = "";
 let text = "";
 let scanline = 0;
 let preset = 0;
+let appVersion = document.getElementById("app-version").getAttribute("value");
+console.log("App Version: " + appVersion);
 
 // Getters für Eingabefelder
 function getSampleMethod() {
@@ -69,11 +71,12 @@ function updateKey() {
         sampleMethod + "," +
         sampleSeed + "," +
         rotation + "," +
-        preset;
+        preset + "," +
+        appVersion;
     document.getElementById("key").value = key;
     if (DEBUG) console.log("Key: " + key);
     if (containsNaN(document.getElementById("key").value)) {
-        showPopup("", "Bildausschnitt ist ungültig. Bitte mit der Maus ein Rechteck aufziehen.", 0, 0, "error");
+        showPopup("", "NaN im Key gefunden. Key ist ungültig.", 0, 0, "error");
         return; // Füge einen Return hinzu, um die Funktion zu beenden
     }
 }
@@ -207,7 +210,7 @@ function validateFractal() {
             // Überprüfen, ob blackAreaCount zu groß ist (mehr als 25% des Fraktals)
             if (blackAreaCount > (canvas.width * canvas.height) / 2) {
                 console.log("Schwarze Pixel: ", blackAreaCount);
-                showPopup("Hinweis", "Mit vielen schwarzen Flächen wird die Verschlüsselung potentiell angreifbar. Wenn der Ausschnitt genutzt werden soll, könnte man zusätzlich die Matrix Rotation, 'zufällig sequentiell' oder 'vollständig zufällig' in Betracht ziehen. Es ist jedoch immer besser einen neuen Ausschnitt mit weniger schwarzen Flächen zu wählen.", 0, 0, "hint")
+                showPopup("Hinweis", "Mit großen, schwarzen Flächen wird die Verschlüsselung potentiell angreifbar. Wenn sich die Flächen eher am Rand befinden, könnte man zusätzlich die Matrix Rotation in Betracht ziehen. Es ist jedoch immer besser einen neuen, variationsreichen Ausschnitt zu wählen.", 0, 0, "hint")
                 stop = true;  // Setzt stop auf true, um alle weiteren Berechnungen abzubrechen
                 break;
             }
@@ -327,7 +330,8 @@ function hexToInt(hexString) {
 
 function parseKey() {
     // Splitte die Eingabezeichenkette am Komma
-    const numberStrings = document.getElementById("key").value.split(',');
+    let numberStrings = "";
+    numberStrings = document.getElementById("key").value.split(',');
 
     if (containsNaN(numberStrings)) {
         showPopup("", "NaN ist nicht erlaubt.", 0, 0, "error");
@@ -344,7 +348,11 @@ function parseKey() {
     sampleMethod = parseInt(numberStrings[6]);
     sampleSeed = parseInt(numberStrings[7]);
     rotation = parseInt(numberStrings[8]);
-    preset = parseInt(numberStrings[9]);
+    preset = parseInt(numberStrings[9]);    
+
+    if (appVersion != parseInt(numberStrings[10])) {
+        showPopup("", "Der Key ist nicht kompatiblen mit dieser App Version. Die Verschlüsselung wird wahrscheinlich nicht korrekt funktionieren.", 0, 0, "error");
+    }
     updateInputFields();
     updateFractal();
 }
@@ -580,64 +588,43 @@ function applyPreset(preset) {
     switch (preset) {
         case 0:
             // Sternenflotte Default (schwach)
-            //-1.445,0.625,-1.065,0.9975,100,10,0,1000,0,0
-            fractalSettings = { xmin: -1.445, xmax: 0.625, ymin: -1.065, ymax: 0.9975 };
-            iterations = 100;
-            samplesPerChar = 10;
-            sampleMethod = 0;
-            sampleSeed = 1000;
-            rotation = 0;
-            updateKey();
+            document.getElementById("key").value = "-1.445,0.625,-1.065,0.9975,100,10,0,1000,0,0,20241106";
+            parseKey();
             break;
         case 1:
             // Worf-3-7-Gamma-Echo (gut)
-            // 0.29725,0.2995,-0.019275000000000014,-0.016575000000000013,100,20,0,1000,0,2
-            fractalSettings = { xmin: 0.29725, xmax: 0.2995, ymin: -0.019275000000000014, ymax: -0.016575000000000013 };
-            iterations = 100;
-            samplesPerChar = 20;
-            sampleMethod = 0;
-            sampleSeed = 1000;
-            rotation = 0;
-            updateKey();
+            document.getElementById("key").value = "0.29725,0.2995,-0.019275000000000014,-0.016575000000000013,100,20,0,1000,0,1,20241106";
+            parseKey();
             break;
         case 2:
             // Picard-4-7-Alpha-Tango (stark)
-            // -0.983451125,-0.9785303750000001,-0.28212375000000006,-0.276654,100,100,1,9999,0,1
-            fractalSettings = { xmin: -0.983451125, xmax: -0.9785303750000001, ymin: -0.28212375000000006, ymax: -0.276654 };
-            iterations = 100;
-            samplesPerChar = 50;
-            sampleMethod = 1;
-            sampleSeed = 9999;
-            rotation = 0;
-            updateKey();
+            document.getElementById("key").value = "-0.983451125,-0.9785303750000001,-0.28212375000000006,-0.276654,100,100,1,9999,0,2,20241106";
+            parseKey();
             break;
         case 3:
             // Data's Borg Crypt 20630405 (unknackbar)
-            //-0.26326250000000007,-0.25278125000000007,-0.66031875,-0.6500812499999999,200,100,2,871234451,0,3
-            fractalSettings = { xmin: -0.26326250000000007, xmax: -0.25278125000000007, ymin: -0.66031875, ymax: -0.6500812499999999 };
-            iterations = 200;
-            samplesPerChar = 100;
-            sampleMethod = 2;
-            sampleSeed = 871234451;
-            rotation = 0;
-            updateKey();
+            document.getElementById("key").value = "-0.26326250000000007,-0.25278125000000007,-0.66031875,-0.6500812499999999,200,100,2,871234451,0,3,20241106";
+            parseKey();
             break;
         case 4:
             // Weltraum-Wirbel
-            // 0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4
-            document.getElementById("key").value = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4";
+            document.getElementById("key").value = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4,20241106";
             parseKey();
             break;
         case 5:
             // Das Auge der Cleopatra
-            // -0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5
-            document.getElementById("key").value = "-0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5";
+            document.getElementById("key").value = "-0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5,20241106";
             parseKey();
             break;
         case 6:
+            // Sternenspektrum
+            document.getElementById("key").value = "-0.37118750000000006,-0.16812500000000008,-0.6538125,-0.6539250000000001,100,100,0,1000,0,6,20241106";
+            parseKey();
+            break;
+
+        case 7:
             // User
-            // -2,1,-1.5,1.5,100,100,0,1234,0,6
-            document.getElementById("key").value = "-2,1,-1.5,1.5,100,100,0,1234,0,6";
+            document.getElementById("key").value = "-2,1,-1.5,1.5,100,100,0,1234,0,7,20241106";
             parseKey();
             break;
 
@@ -657,4 +644,7 @@ function updateInputFields() {
     document.getElementById("preset").value = preset;
 }
 
-applyPreset(0);
+window.onload = function () {
+    console.log('Dokument geladen');
+    applyPreset(0);
+}
