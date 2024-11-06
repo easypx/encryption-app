@@ -573,8 +573,8 @@ function applyPreset(preset) {
     switch (preset) {
         case 0:
             // Sternenflotte Default (schwach)
-            //-2,1,-1.5,1.5,100,10,0,1000,0,0
-            fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
+            //-1.445,0.625,-1.065,0.9975,100,10,0,1000,0,0
+            fractalSettings = { xmin: -1.445, xmax: 0.625, ymin: -1.065, ymax: 0.9975 };
             iterations = 100;
             samplesPerChar = 10;
             sampleMethod = 0;
