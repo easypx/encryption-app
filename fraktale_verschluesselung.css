@@ -214,7 +214,7 @@ p.center {
 .textarea-container textarea {
     width: 100%;
     /* Damit die textarea die gesamte Breite einnimmt */
-    /*resize: none;*/
+    resize: vertical;
     /* Verhindert das Ändern der Größe der textarea */
 }
 
@@ -269,5 +269,13 @@ p.center {
 #app-version{
     text-align: center;
     font-size: small;
+    margin: 10px;
+}
+
+#version-warning{
+    text-align: center;
+    font-size: small;
+    color: #ff4081;
+    margin: 0px;
 }
 

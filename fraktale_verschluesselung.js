@@ -20,6 +20,7 @@ function getSampleMethod() {
     sampleMethod = parseInt(document.getElementById("sample-method").value);
     if (DEBUG) console.log("Sample Method: " + sampleMethod);
     updateKey();
+    updateFractal();
 }
 
 function getPreset() {
@@ -27,30 +28,35 @@ function getPreset() {
     if (DEBUG) console.log("Preset: " + preset);
     applyPreset(preset);
     updateKey();
+    updateFractal();
 }
 
 function getSeed() {
     sampleSeed = document.getElementById("seed").value;
     if (DEBUG) console.log("Sample Seed: " + sampleSeed);
     updateKey();
+    updateFractal();
 }
 
 function getIterations() {
     iterations = document.getElementById("iterations").value;
     if (DEBUG) console.log("Iterations: " + iterations);
     updateKey();
+    updateFractal();
 }
 
 function getSamplesPerChar() {
     samplesPerChar = document.getElementById("samples-per-char").value;
     if (DEBUG) console.log("Sample per char: " + samplesPerChar);
     updateKey();
+    updateFractal();
 }
 
 function getRotation() {
     rotation = document.getElementById("matrix-rotation").value;
     if (DEBUG) console.log("Matrix Rotation: " + rotation);
     updateKey();
+    updateFractal();
 }
 
 function updateKey() {
@@ -91,6 +97,7 @@ function getInformation() {
 
 function resetFractal() {
     fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
+    updateKey();
     updateFractal();
 }
 
@@ -580,7 +587,7 @@ function applyPreset(preset) {
             sampleMethod = 0;
             sampleSeed = 1000;
             rotation = 0;
-            updateInputFields();
+            updateKey();
             break;
         case 1:
             // Worf-3-7-Gamma-Echo (gut)
@@ -591,7 +598,7 @@ function applyPreset(preset) {
             sampleMethod = 0;
             sampleSeed = 1000;
             rotation = 0;
-            updateInputFields();
+            updateKey();
             break;
         case 2:
             // Picard-4-7-Alpha-Tango (stark)
@@ -602,7 +609,7 @@ function applyPreset(preset) {
             sampleMethod = 1;
             sampleSeed = 9999;
             rotation = 0;
-            updateInputFields();
+            updateKey();
             break;
         case 3:
             // Data's Borg Crypt 20630405 (unknackbar)
@@ -613,13 +620,32 @@ function applyPreset(preset) {
             sampleMethod = 2;
             sampleSeed = 871234451;
             rotation = 0;
-            updateInputFields();
+            updateKey();
             break;
+        case 4:
+            // Weltraum-Wirbel
+            // 0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4
+            document.getElementById("key").value = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4";
+            parseKey();
+            break;
+        case 5:
+            // Das Auge der Cleopatra
+            // -0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5
+            document.getElementById("key").value = "-0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5";
+            parseKey();
+            break;
+        case 6:
+            // User
+            // -2,1,-1.5,1.5,100,100,0,1234,0,6
+            document.getElementById("key").value = "-2,1,-1.5,1.5,100,100,0,1234,0,6";
+            parseKey();
+            break;
+
         default:
             return;
     }
+    updateInputFields();
     updateFractal();
-    updateKey();
 }
 
 function updateInputFields() {
