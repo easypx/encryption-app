@@ -339,6 +339,7 @@ function parseKey() {
     rotation = parseInt(numberStrings[8]);
     preset = parseInt(numberStrings[9]);
     updateInputFields();
+    updateFractal();
 }
 
 function decryptText() {
