@@ -265,11 +265,23 @@ function resetScanline() {
     scanline = 0;
 }
 
+function splitHexToBytes(hexString) {
+    let byteArray = [];
+
+    // Iteriere in 2er-Schritten durch den String und füge jedes Byte hinzu
+    for (let i = 0; i < hexString.length; i += 2) {
+        byteArray.push(hexString.substring(i, i + 2));
+    }
+
+    return byteArray;
+}
+
 function encryptText() {
+    const startTime = performance.now();  // Startzeit erfassen
     // Zeige einen Hinweis, wenn das Fraktal mehr als 50% schwaze Flächen hat
     validateFractal();
 
-    const text = document.getElementById("inputText").value; // Verwende value
+    text = document.getElementById("inputText").value; // Verwende value
     let fractalMatrixIndex = 0;
     const fractalMatrix = getFractalMatrix(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax);
     if (DEBUG) console.log("Sample Method: " + sampleMethod);
@@ -289,7 +301,7 @@ function encryptText() {
                     fractalMatrixIndex++;
                 }
                 return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // als Hexadezimal
-            }).join(' ');
+            }).join('');
             resetScanline();
             break;
         // zufällig sequentiell
@@ -307,8 +319,8 @@ function encryptText() {
                     drawScanline(fractalMatrixIndex);
                     fractalMatrixIndex++;
                 }
-                return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // als Hexadezimal
-            }).join(' ');
+                return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // Hexadezimal
+            }).join('');
             resetScanline();
             break;
         // vollständig zufällig
@@ -316,8 +328,8 @@ function encryptText() {
             noise = generateNoise(sampleSeed, samplesPerChar, (canvas.width * canvas.height) - 1);
             if (DEBUG) console.log("Noise: " + noise);
             encryptedText = text.split('').map((char, index) => {
-                // Hole ersten Wert aus dem Noise Array
                 const value = char.charCodeAt(0);
+                // Hole ersten Wert aus dem Noise Array
                 fractalMatrixIndex = noise[0];
                 // Addiere laufende Samples aus dem Fraktal
                 let fractalValue = 0;
@@ -327,14 +339,83 @@ function encryptText() {
                     drawScanline(fractalMatrixIndex);
                     fractalMatrixIndex = noise[i];
                 }
-                return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // als Hexadezimal
-            }).join(' ');
+                return ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // Hexadezimal
+            }).join('');
             resetScanline();
             break;
         default:
     }
-    document.getElementById("inputText").value = encryptedText; // Verwende value hier
+    const endTime = performance.now();    // Endzeit erfassen
+    const encryptionTime = endTime - startTime; // Zeitdauer berechnen
+
+    console.log(`Verschlüsselungszeit: ${encryptionTime.toFixed(2)} ms`);
+    text = encryptedText; // Sichern in Textbuffer
+    document.getElementById("inputText").value = text; // Verwende value hier
     if (DEBUG) console.log("Encrypted Text: " + encryptedText);
+}
+
+function decryptText() {
+    const startTime = performance.now();  // Startzeit erfassen
+    text = document.getElementById("inputText").value;
+    const fractalMatrix = getFractalMatrix(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax);
+    let fractalMatrixIndex = 0;
+    let decryptedText = "";
+    let noise = [];
+    let temp = "";
+    switch (sampleMethod) {
+        case 0:
+            decryptedText = splitHexToBytes(text).map((char, index) => {
+                const value = hexToInt(char); // Umwandlung von hexadezimal in int
+                // Subtrahiere laufende Samples aus dem Fraktal
+                let fractalValue = 0;
+                for (let i = 0; i < samplesPerChar; i++) {
+                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
+                    fractalMatrixIndex++;
+                }
+                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
+            }).join('');
+            break;
+        case 1:
+            noise = generateNoise(sampleSeed, text.length, (canvas.width * canvas.height) - 1);
+            decryptedText = splitHexToBytes(text).map((char, index) => {
+                const value = hexToInt(char); // Umwandlung von hexadezimal in int
+                // Hole zufälligen Index für Startpunkt in der Matrix
+                fractalMatrixIndex = noise[index];
+                // Subtrahiere laufende Samples aus dem Fraktal
+                let fractalValue = 0;
+                for (let i = 0; i < samplesPerChar; i++) {
+                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
+                    fractalMatrixIndex++;
+                }
+                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
+            }).join('');
+            break;
+        case 2:
+            noise = generateNoise(sampleSeed, samplesPerChar, (canvas.width * canvas.height) - 1);
+            if (DEBUG) console.log("Noise: " + noise);
+            decryptedText = splitHexToBytes(text).map((char, index) => {
+                const value = hexToInt(char); // Umwandlung von hexadezimal in int
+                // Hole ersten Wert aus dem Noise Array
+                fractalMatrixIndex = noise[0];
+                let fractalValue = 0;
+                // Verrechne jedes Zeichen mehrfach mit der Fraktal Matrix mit den Indizes aus dem Noise Array
+                for (let i = 0; i < samplesPerChar; i++) {
+                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
+                    drawScanline(fractalMatrixIndex);
+                    fractalMatrixIndex = noise[i];
+                }
+                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
+            }).join('');
+            break;
+        default:
+    }
+    const endTime = performance.now();    // Endzeit erfassen
+    const decryptionTime = endTime - startTime; // Zeitdauer berechnen
+
+    console.log(`Entschlüsselungszeit: ${decryptionTime.toFixed(2)} ms`);
+    text = decryptedText; // Sichern in Textbuffer
+    document.getElementById("inputText").value = text; // Update den Textbereich mit dem entschlüsselten Text
+    updateFractal();
 }
 
 function hexToInt(hexString) {
@@ -367,64 +448,6 @@ function parseKey() {
         showPopup("", "Der Key ist nicht kompatiblen mit dieser App Version. Die Verschlüsselung wird wahrscheinlich nicht korrekt funktionieren.", 0, 0, "error");
     }
     updateInputFields();
-    updateFractal();
-}
-
-function decryptText() {
-    const text = document.getElementById("inputText").value;
-    const fractalMatrix = getFractalMatrix(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax);
-    let fractalMatrixIndex = 0;
-    let decryptedText = "";
-    let noise = [];
-    switch (sampleMethod) {
-        case 0:
-            decryptedText = text.split(' ').map((char, index) => {
-                const value = hexToInt(char);
-                // Subtrahiere laufende Samples aus dem Fraktal
-                let fractalValue = 0;
-                for (let i = 0; i < samplesPerChar; i++) {
-                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
-                    fractalMatrixIndex++;
-                }
-                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
-            }).join('');
-            break;
-        case 1:
-            noise = generateNoise(sampleSeed, text.length, (canvas.width * canvas.height) - 1);
-            decryptedText = text.split(' ').map((char, index) => {
-                const value = hexToInt(char);
-                // Hole zufälligen Index für Startpunkt in der Matrix
-                fractalMatrixIndex = noise[index];
-                // Subtrahiere laufende Samples aus dem Fraktal
-                let fractalValue = 0;
-                for (let i = 0; i < samplesPerChar; i++) {
-                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
-                    fractalMatrixIndex++;
-                }
-                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
-            }).join('');
-            break;
-        case 2:
-            noise = generateNoise(sampleSeed, samplesPerChar, (canvas.width * canvas.height) - 1);
-            if (DEBUG) console.log("Noise: " + noise);
-            decryptedText = text.split(' ').map((char, index) => {
-                const value = hexToInt(char);
-                // Hole ersten Wert aus dem Noise Array
-                fractalMatrixIndex = noise[0];
-                let fractalValue = 0;
-                // Verrechne jedes Zeichen mehrfach mit der Fraktal Matrix mit den Indizes aus dem Noise Array
-                for (let i = 0; i < samplesPerChar; i++) {
-                    fractalValue = (fractalValue + fractalMatrix[fractalMatrixIndex % fractalMatrix.length]) % 256;
-                    drawScanline(fractalMatrixIndex);
-                    fractalMatrixIndex = noise[i];
-                }
-                return String.fromCharCode((value - fractalValue + 256) % 256); // Sicherstellen, dass das Ergebnis positiv ist
-            }).join('');
-            break;
-        default:
-    }
-
-    document.getElementById("inputText").value = decryptedText; // Update den Textbereich mit dem entschlüsselten Text
     updateFractal();
 }
 
