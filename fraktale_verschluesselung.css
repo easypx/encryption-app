@@ -483,6 +483,7 @@ html {
     justify-content:space-around;
     margin-top: 30px;
     margin-bottom: 30px;
+    background-color: #01010100;
 }
 
 .image-links-container>div {
