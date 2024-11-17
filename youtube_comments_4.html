@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube API - Kommentar löschen</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div id="g_id_onload"
+         data-client_id="494753670710-1bdnjbifije3cckvbmm29lv9n9okh9qt.apps.googleusercontent.com" 
+         data-login_uri="https://easypx.github.io" 
+         data-auto_prompt="false">
+    </div>
+
+    <div id="g_id_signin" class="g_id_signin" data-type="standard" data-theme="outline" data-text="Sign in with Google" data-shape="rectangular"></div>
+
+    <button id="deleteCommentBtn" style="display:none;" onclick="deleteComment()">Kommentar löschen</button>
+
+    <script>
+        token = '';
+        // Die Funktion, die nach erfolgreichem Login ausgelöst wird
+        function handleCredentialResponse(response) {
+            token = response.credential; // Hier ist das Bearer-Token (ID Token)
+            console.log('Google Token:', token);
+            // Das Bearer Token verwenden, um API-Anfragen zu machen
+            document.getElementById('deleteCommentBtn').style.display = 'block';
+        }
+
+        // Google Identity Services API laden und die Initialisierung durchführen
+        window.onload = () => {
+            google.accounts.id.initialize({
+                client_id: '494753670710-1bdnjbifije3cckvbmm29lv9n9okh9qt.apps.googleusercontent.com',
+                callback: handleCredentialResponse,
+            });
+
+            google.accounts.id.prompt(); // Zeigt das Login-Fenster an
+        };
+
+        // Kommentar löschen (diese Funktion nutzt das Token, um eine DELETE-Anfrage zu senden)
+        async function deleteComment() {
+            const commentId = 'UgytXFBSiG5eLt8b-BB4AaABAg';  // Die Kommentar-ID, die du löschen möchtest
+            const accessToken = token;  // Hier musst du das Bearer Token einfügen, z.B. aus der obigen Funktion
+
+            // API-Aufruf zum Löschen des Kommentars
+            const url = `https://www.googleapis.com/youtube/v3/comments?id=${commentId}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.status === 204) {
+                alert('Kommentar gelöscht!');
+            } else {
+                alert('Fehler beim Löschen des Kommentars: ' + response.status);
+            }
+        }
+    </script>
+</body>
+</html>
