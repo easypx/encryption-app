@@ -18,7 +18,7 @@
     </div>
 
     <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with"
-        data-size="large" data-logo_alignment="left">
+        data-size="large" data-logo_alignment="left" data-onsuccess="onSignIn" data-onfailure="onSignInFailure">
     </div>
     
     <script>
@@ -41,6 +41,7 @@
 
         function onSignInFailure() {
             // Handle sign-in errors
+            alert("Anmeldung fehlgeschlagen!")
         }
     </script>
 </body>
