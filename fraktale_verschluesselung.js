@@ -10,12 +10,14 @@ let sampleSeed = 1000;
 let iterations = 100;
 let samplesPerChar = 100;
 let rotation = 0;
-let key = "";
-let text = "";
+let key = ""; // Keybuffer
+let text = ""; // Textbuffer
 let scanline = 0;
 let preset = 0;
-let appVersion = document.getElementById("app-version").getAttribute("value");
+let appVersion = document.getElementById("app-version").getAttribute("version");
 console.log("App Version: " + appVersion);
+let inputFormat = 0;
+let outputFormat = 0;
 
 // Getters für Eingabefelder
 function getSampleMethod() {
@@ -73,12 +75,16 @@ function updateKey() {
         rotation + "," +
         preset + "," +
         appVersion;
-    document.getElementById("key").value = key;
-    if (DEBUG) console.log("Key: " + key);
-    if (containsNaN(document.getElementById("key").value)) {
+
+    if (DEBUG) console.log("Key as Parameters: " + key);
+    if (containsNaN(key)) {
         showPopup("", "NaN im Key gefunden. Key ist ungültig.", 0, 0, "error");
         return; // Füge einen Return hinzu, um die Funktion zu beenden
     }
+    // Wandle in Hex um
+    const hexKey = stringToHex(key);
+    document.getElementById("key").value = hexKey;
+    console.log("Key as Hexadezimal:", hexKey);
 }
 
 function getKey() {
@@ -96,6 +102,16 @@ function getText() {
 // Zeigt App Hilfe
 function getInformation() {
     showPopup("Fraktaler Verschlüsselungscode", "Ein Fraktaler Verschlüsselungscode ist eine sichere Methode zum Sperren des Zugangs zu einem Computer. Der Code basiert auf fraktalen Algorithmen und ist somit kaum von Dritten zu entschlüsseln. Lieutenant Commander Data wendet nach einer Zeitreise der USS Enterprise (NCC-1701-E) aus dem Jahr 2373 ins Jahr 2063 während des Angriffs der Borg auf die Erde einen solchen Code auf den Hauptcomputer an, um die Borg vom Zugriff auszuschließen. (Star Trek: Der erste Kontakt) ", 0, 0, "default");
+}
+
+function getInputFormat() {
+    inputFormat = parseInt(document.getElementById("input-format").value);
+    updateKey(); // TODO
+}
+
+function getOutputFormat() {
+    outputFormat = parseInt(document.getElementById("output-format").value);
+    updateKey(); // TODO
 }
 
 function resetFractal() {
@@ -171,30 +187,17 @@ function rotateMatrix90(matrix) {
 function encryptWithRotations(text, xmin, xmax, ymin, ymax) {
     // Original-Matrix erstellen
     let baseMatrix = getFractalMatrix(xmin, xmax, ymin, ymax);
+
     // 3 weitere rotierte Matrizen erzeugen
     let matrix90 = rotateMatrix90(baseMatrix);
     let matrix180 = rotateMatrix90(matrix90);
     let matrix270 = rotateMatrix90(matrix180);
-    let encryptedText = "";
 
-    switch (rotation) {
-        case 0:
-
-            break;
-        case 1:
-            encryptedText = encrypt(encryptedText, matrix90); // 2. Durchlauf
-            break;
-        case 2:
-            encryptedText = encrypt(encryptedText, matrix90); // 2. Durchlauf
-            encryptedText = encrypt(encryptedText, matrix180); // 3. Durchlauf
-            break;
-        case 3:
-            encryptedText = encrypt(encryptedText, matrix90); // 2. Durchlauf
-            encryptedText = encrypt(encryptedText, matrix180); // 3. Durchlauf
-            encryptedText = encrypt(encryptedText, matrix270); // 4. Durchlauf
-            break;
-        default:
-    }
+    // Mehrfach verschlüsseln
+    let encryptedText = encrypt(text, baseMatrix); // 1. Durchlauf
+    encryptedText = encrypt(encryptedText, matrix90); // 2. Durchlauf
+    encryptedText = encrypt(encryptedText, matrix180); // 3. Durchlauf
+    encryptedText = encrypt(encryptedText, matrix270); // 4. Durchlauf
 
     return encryptedText;
 }
@@ -263,6 +266,40 @@ function drawScanline(pixelCounter) {
 
 function resetScanline() {
     scanline = 0;
+}
+
+// TODO: Any to any
+function formatAsciiToAny(outputFormat, value, fractalValue) {
+    let encryptedChar = "";
+    if (outputFormat == 0) {
+        encryptedChar = String.fromCharCode((value + fractalValue) % 256); // als Text
+    }
+    else if (outputFormat == 1) {
+        encryptedChar = ((value + fractalValue) % 256).toString(16).padStart(2, '0');  // als Hexadezimal
+    }
+    else if (outputFormat == 2) {
+        let temp = String.fromCharCode((value + fractalValue) % 256);
+        encryptedChar = charToNucleobases(temp); // als Quads
+    }
+    return encryptedChar;
+}
+
+function formatAnyToAscii(inputFormat, inputChar) {
+    //let encryptedChar = inputChar.split('');
+    //let hexString = inputChar;
+    let decryptedChar = "";
+    // Hexadezimal
+    if (inputFormat == 0) {
+        // Tue nichts
+    }
+    else if (inputFormat == 1) {
+        decryptedChar = String.fromCharCode(hexToInt(inputChar) % 256);  // als Hexadezimal
+    }
+    else if (inputFormat == 2) {
+        let temp = String.fromCharCode((value + fractalValue) % 256);
+        decryptedChar = charToNucleobases(temp); // als Quads
+    }
+    return decryptedChar;
 }
 
 function splitHexToBytes(hexString) {
@@ -423,9 +460,13 @@ function hexToInt(hexString) {
 }
 
 function parseKey() {
+    // Wandle Hex in String um
+    const hexKey = document.getElementById("key").value;
+    key = hexToString(hexKey);
+
     // Splitte die Eingabezeichenkette am Komma
     let numberStrings = "";
-    numberStrings = document.getElementById("key").value.split(',');
+    numberStrings = key.split(',');
 
     if (containsNaN(numberStrings)) {
         showPopup("", "NaN ist nicht erlaubt.", 0, 0, "error");
@@ -450,6 +491,8 @@ function parseKey() {
     updateInputFields();
     updateFractal();
 }
+
+
 
 function getFractalMatrix(xmin, xmax, ymin, ymax) {
     const width = canvas.width;
@@ -624,43 +667,43 @@ function applyPreset(preset) {
     switch (preset) {
         case 0:
             // Sternenflotte Default (schwach)
-            document.getElementById("key").value = "-1.445,0.625,-1.065,0.9975,100,10,0,1000,0,0,20241106";
+            document.getElementById("key").value = stringToHex(`-1.445,0.625,-1.065,0.9975,100,10,0,1000,0,0,${appVersion}`);
             parseKey();
             break;
         case 1:
             // Worf-3-7-Gamma-Echo (gut)
-            document.getElementById("key").value = "0.29725,0.2995,-0.019275000000000014,-0.016575000000000013,100,20,0,1000,0,1,20241106";
+            document.getElementById("key").value = stringToHex(`0.29725,0.2995,-0.019275000000000014,-0.016575000000000013,100,20,0,1000,0,1,${appVersion}`);
             parseKey();
             break;
         case 2:
             // Picard-4-7-Alpha-Tango (stark)
-            document.getElementById("key").value = "-0.983451125,-0.9785303750000001,-0.28212375000000006,-0.276654,100,100,1,9999,0,2,20241106";
+            document.getElementById("key").value = stringToHex(`-0.983451125,-0.9785303750000001,-0.28212375000000006,-0.276654,100,100,1,9999,0,2,${appVersion}`);
             parseKey();
             break;
         case 3:
             // Data's Borg Crypt 20630405 (unknackbar)
-            document.getElementById("key").value = "-0.26326250000000007,-0.25278125000000007,-0.66031875,-0.6500812499999999,200,100,2,871234451,0,3,20241106";
+            document.getElementById("key").value = stringToHex(`-0.26326250000000007,-0.25278125000000007,-0.66031875,-0.6500812499999999,200,100,2,871234451,0,3,${appVersion}`);
             parseKey();
             break;
         case 4:
             // Weltraum-Wirbel
-            document.getElementById("key").value = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4,20241106";
+            document.getElementById("key").value = stringToHex(`0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4,${appVersion}`);
             parseKey();
             break;
         case 5:
             // Das Auge der Cleopatra
-            document.getElementById("key").value = "-0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5,20241106";
+            document.getElementById("key").value = stringToHex(`-0.74880771875,-0.7438745468749999,-0.11731509374999996,-0.11283731249999997,400,100,2,871234451,0,5,${appVersion}`);
             parseKey();
             break;
         case 6:
             // Sternenspektrum
-            document.getElementById("key").value = "-0.37118750000000006,-0.16812500000000008,-0.6538125,-0.6539250000000001,100,100,0,1000,0,6,20241106";
+            document.getElementById("key").value = stringToHex(`-0.37118750000000006,-0.16812500000000008,-0.6538125,-0.6539250000000001,100,100,0,1000,0,6,${appVersion}`);
             parseKey();
             break;
 
         case 7:
             // User
-            document.getElementById("key").value = "-2,1,-1.5,1.5,100,100,0,1234,0,7,20241106";
+            document.getElementById("key").value = stringToHex(`-2,1,-1.5,1.5,100,100,0,1234,0,7,${appVersion}`);
             parseKey();
             break;
 
@@ -682,5 +725,5 @@ function updateInputFields() {
 
 window.onload = function () {
     console.log('Dokument geladen');
-    applyPreset(0);
+    applyPreset(2);
 }
