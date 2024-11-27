@@ -1,4 +1,4 @@
-const DEBUG = 0;
+const DEBUG = 1;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
@@ -17,7 +17,8 @@ let preset = 0;
 let appVersion = document.getElementById("app-version").getAttribute("version");
 console.log("App Version: " + appVersion);
 let inputFormat = 0;
-let outputFormat = 0;
+let outputFormat = 1;
+const appName = "ST8-Fractal-Encryption";
 
 // Getters für Eingabefelder
 function getSampleMethod() {
@@ -382,18 +383,27 @@ function encryptText() {
             break;
         default:
     }
+    encryptedText = stringToHex(`App-Name: ${appName} Version: ${appVersion} Format: ${outputFormat} Data: `) + encryptedText;// Füge Header hinzu
+    text = encryptedText; // Sichern in Textbuffer
+
     const endTime = performance.now();    // Endzeit erfassen
     const encryptionTime = endTime - startTime; // Zeitdauer berechnen
 
     console.log(`Verschlüsselungszeit: ${encryptionTime.toFixed(2)} ms`);
-    text = encryptedText; // Sichern in Textbuffer
     document.getElementById("inputText").value = text; // Verwende value hier
     if (DEBUG) console.log("Encrypted Text: " + encryptedText);
 }
 
 function decryptText() {
     const startTime = performance.now();  // Startzeit erfassen
-    text = document.getElementById("inputText").value;
+    
+    // Lese Header und Datenblock
+    let data = parseHexHeader(document.getElementById("inputText").value);
+    if (DEBUG) console.log("Data: ", data);
+
+    // Hole Datablock
+    text = data.data;
+
     const fractalMatrix = getFractalMatrix(fractalSettings.xmin, fractalSettings.xmax, fractalSettings.ymin, fractalSettings.ymax);
     let fractalMatrixIndex = 0;
     let decryptedText = "";
@@ -453,6 +463,26 @@ function decryptText() {
     text = decryptedText; // Sichern in Textbuffer
     document.getElementById("inputText").value = text; // Update den Textbereich mit dem entschlüsselten Text
     updateFractal();
+}
+
+function parseHexHeader(hexString) {
+    // Zuerst Hexadezimal in String umwandeln
+    const decodedString = hexToString(hexString);
+
+    // Parameter extrahieren
+    const appNameMatch = decodedString.match(/App-Name:\s*(\S+)/);
+    const versionMatch = decodedString.match(/Version:\s*(\S+)/);
+    const formatMatch = decodedString.match(/Format:\s*(\S+)/);
+    const dataMatch = decodedString.match(/Data:\s*([\s\S]+)/);
+
+    // Ergebnisse in einem Objekt speichern
+    const result = {
+        appname: appNameMatch ? appNameMatch[1] : null,
+        version: versionMatch ? versionMatch[1] : null,
+        format: formatMatch ? formatMatch[1] : null,
+        data: dataMatch ? stringToHex(dataMatch[1]) : null
+    };
+    return result;
 }
 
 function hexToInt(hexString) {

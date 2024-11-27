@@ -33,7 +33,8 @@ function stringToNucleobases(string) {
 
 function nucleobasesToChar(bases) {
     // Nukleinbasen zu Indexen mapen: A = 0, G = 1, C = 2, T = 3
-    const baseMap = { 'A': 0, 'G': 1, 'C': 2, 'T': 3 };
+    //const baseMap = { 'A': 0, 'G': 1, 'C': 2, 'T': 3 };
+    const baseMap = { '░': 0, '▒': 1, '▓': 2, '█': 3 };
     let asciiValue = 0;
 
     // Schleife über den Basis-String (jede Basis entspricht 2 Bits)
@@ -150,7 +151,7 @@ function runLengthEncode(input) {
 }
 
 function charToBits(char) {
-    switch(char) {
+    switch (char) {
         case 'A': return '00';
         case 'G': return '01';
         case 'C': return '10';
