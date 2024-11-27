@@ -1,4 +1,4 @@
-const DEBUG = 1;
+const DEBUG = 0;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let fractalSettings = { xmin: -2, xmax: 1, ymin: -1.5, ymax: 1.5 };
@@ -388,6 +388,7 @@ function encryptText() {
 
     const endTime = performance.now();    // Endzeit erfassen
     const encryptionTime = endTime - startTime; // Zeitdauer berechnen
+    document.getElementById("time").innerHTML = encryptionTime + ' ' + 'ms';
 
     console.log(`Verschlüsselungszeit: ${encryptionTime.toFixed(2)} ms`);
     document.getElementById("inputText").value = text; // Verwende value hier
@@ -458,6 +459,7 @@ function decryptText() {
     }
     const endTime = performance.now();    // Endzeit erfassen
     const decryptionTime = endTime - startTime; // Zeitdauer berechnen
+    document.getElementById("time").innerHTML = decryptionTime + ' ' + 'ms';
 
     console.log(`Entschlüsselungszeit: ${decryptionTime.toFixed(2)} ms`);
     text = decryptedText; // Sichern in Textbuffer
