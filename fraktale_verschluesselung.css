@@ -496,4 +496,6 @@ html {
 
 img {
     border-radius: 8px;
+    border-color: #33b5e5;
+    border-width: 5px;
 }
