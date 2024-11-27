@@ -397,11 +397,15 @@ function encryptText() {
 
 function decryptText() {
     const startTime = performance.now();  // Startzeit erfassen
-    
+
     // Lese Header und Datenblock
     let data = parseHexHeader(document.getElementById("inputText").value);
     if (DEBUG) console.log("Data: ", data);
-
+    if (data.version !== appVersion) {
+        if (DEBUG) console.log(`App-version missmatch!`, appVersion);
+        showPopup("", `Der Text wurde mit einer anderen App-Version verschlüsselt! (${appVersion})`, 0, 0, "error");
+        return;
+    }
     // Hole Datablock
     text = data.data;
 
