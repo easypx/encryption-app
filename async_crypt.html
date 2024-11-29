@@ -40,7 +40,7 @@
             <input class="w3-input w3-border" type="text" id="message">
             <p>4. Decrypt the encrypted fractal key, which you got from your communication partner. The fractal key
                 should
-                look like comma-separated numbers and can now be used as synchronous key in the fractal encryption app. <b>KEEP IT TOP
+                look like a hexadecimal string and can now be used as synchronous key in the fractal encryption app. <b>KEEP IT TOP
                     SECRET!</b> Store it as a text file "fractal-key.txt" to your user account.</p>
             <button class="w3-button w3-purple w3-round" onclick="encryptRSA()">Encode</button>
             <button class="w3-button w3-indigo w3-round" onclick="decryptRSA()">Decode</button>
@@ -65,7 +65,7 @@
     let crypt = null;
 
     // Preset message Feld
-    const message = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4";
+    const message = "Place the encrypted fractal key here, which your have received from your communication partner.";
     document.getElementById("message").placeholder = message;
 
     function getRSAKeys() {
