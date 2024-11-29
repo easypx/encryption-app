@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        .dark-mode {
+            background-color: #1d2a35;
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="w3-container w3-teal">
+        <h1>Asynchronous encryption element</h1>
+    </header>
+    <div class="w3-container">
+        <section class="w3-container">
+            <div class="w3-panel w3-pale-green w3-bottombar w3-border-green w3-border" id="info-panel"
+                style="display:none;">
+                <p>Calcualting new key pair (2024 Bit)...</p>
+            </div>
+            <p>1. Generate a new asychronous key pair.</p>
+            <label class="w3-text-blue"><b>Public Key</b></label>
+            <input class="w3-input w3-border" type="text" id="public-key">
+            <p>2. Store the Public Key as a text file "public-key.pem" to user account, then send this file to your
+                communication partner via private transmission channel regarding "Please send me the encrypted fractal key".</p>
+            <label class="w3-text-blue"><b>Private Key</b></label>
+            <input class="w3-input w3-border" type="text" id="private-key">
+            <p>3. Store the Private Key as a text file "private-key.pem" to your user account. <b>KEEP IT SECRET!</b> This
+                key
+                decrypts the fractal key, which you get from your communication partner.</p>
+            <button class="w3-button w3-red w3-round" onclick="getRSAKeys()">New Keypair</button>
+            <hr>
+        </section>
+        <section class="w3-container">
+            <label class="w3-text-blue"><b>Message</b></label>
+            <input class="w3-input w3-border" type="text" id="message">
+            <p>4. Decrypt the encrypted fractal key, which you got from your communication partner. The fractal key
+                should
+                look like comma-separated numbers and can now be used as synchronous key in the fractal encryption app. <b>KEEP IT TOP
+                    SECRET!</b> Store it as a text file "fractal-key.txt" to your user account.</p>
+            <button class="w3-button w3-purple w3-round" onclick="encryptRSA()">Encode</button>
+            <button class="w3-button w3-indigo w3-round" onclick="decryptRSA()">Decode</button>
+            <button class="w3-button w3-green w3-round w3-right" onclick="switchTheme()">Theme</button>
+            <p>5. Note: You can reuse the asynchronous key pair for a few hours if something went wrong. If
+                significantly more time has passed, it is safer to generate a new key pair and repeat the entire
+                process. Star Fleets or alien supercomputers theoretically crack the ecryption in seconds or minutes if the public key
+                was intercepted during transmission. But here we are talking about machines with millions of CPU cores!
+                Ask yourself what security level your rank has.
+            </p>
+            <hr>
+        </section>
+
+        <div class="w3-container w3-teal">
+            <h5>2024 Klangraum</h5>
+            <p>Part of Star Trek 8 Fractal Encryption</p>
+        </div>
+    </div>
+</body>
+<script>
+    // JSEncrypt-Objekt erstellen
+    let crypt = null;
+
+    // Preset message Feld
+    const message = "0.2943522125799924,0.2973456054772599,-0.48361457390566404,-0.48080357875136714,400,100,2,871234451,0,4";
+    document.getElementById("message").placeholder = message;
+
+    function getRSAKeys() {
+        // Erstelle neues Objekt, um Cache zu löschen
+        crypt = new JSEncrypt({ default_key_size: 2048 }); // 2048 Bit Schlüssel
+
+        // Zeige den Spinner (info-panel)
+        document.getElementById("info-panel").style.display = "block";
+
+        // Verwende setTimeout, um den Prozess asynchron zu machen
+        setTimeout(function () {
+            // Schlüssel generieren (Standard: 1024 Bits)
+            crypt.getKey();
+
+            // Privaten Schlüssel abrufen
+            const privateKey = crypt.getPrivateKey();
+            console.log('Privater Schlüssel:', privateKey);
+            document.getElementById("private-key").value = privateKey;
+
+            // Öffentlichen Schlüssel abrufen
+            const publicKey = crypt.getPublicKey();
+            console.log('Öffentlicher Schlüssel:', publicKey);
+            document.getElementById("public-key").value = publicKey;
+
+            // Verstecke den Spinner (info-panel)
+            document.getElementById("info-panel").style.display = "none";
+        }, 0); // Verzögerung 0 ms - Führt die Funktion direkt nach der aktuellen Ausführung der anderen Tasks aus
+    }
+
+    function encryptRSA() {
+        const decrypted = document.getElementById("message").value;
+        crypt.setPublicKey(document.getElementById("public-key").value);
+        const encrypted = crypt.encrypt(decrypted);
+        console.log('Verschlüsselt:', encrypted);
+        document.getElementById("message").value = encrypted;
+    }
+
+    function decryptRSA() {
+        const encrypted = document.getElementById("message").value;
+        crypt.setPrivateKey(document.getElementById("private-key").value);
+        const decrypted = crypt.decrypt(encrypted);
+        console.log('Entschlüsselt:', decrypted);
+        document.getElementById("message").value = decrypted;
+    }
+
+    function clearJSEncryptCache(crypt) {
+        crypt.setPrivateKey(null);
+        crypt.setPublicKey(null);
+    }
+
+    // CSS //
+    function switchTheme() {
+        var element = document.body;
+        element.classList.toggle("dark-mode");
+    }
+
+    // END CSS //
+
+    // TESTZONE //
+
+    // Überprüfen, ob unterschiedliche Keys generiert werden
+    const crypt1 = new JSEncrypt({ default_key_size: 2048 });
+    const crypt2 = new JSEncrypt({ default_key_size: 2048 });
+
+    privateKey1 = '';
+    publicKey1 = '';
+    privateKey2 = '';
+    publicKey2 = '';
+
+    function generateTestKeyPairs() {
+        crypt1.getKey();
+        privateKey1 = crypt1.getPrivateKey();
+        publicKey1 = crypt1.getPublicKey();
+
+        crypt2.getKey();
+        privateKey2 = crypt2.getPrivateKey();
+        publicKey2 = crypt2.getPublicKey();
+    }
+
+    function simpleCompareKeys(privateKey1, publicKey1, privateKey2, publicKey2) {
+        console.log(privateKey1 === privateKey2 ? "Private Schlüssel sind gleich" : "Private Schlüssel sind unterschiedlich");
+        console.log(publicKey1 === publicKey2 ? "Public Schlüssel sind gleich" : "Public Schlüssel sind unterschiedlich");
+    }
+
+    function extractKeyContent(key) {
+        // Entferne PEM-Header und Footer
+        return key.replace(/-----.*-----|\n/g, '');
+    }
+
+    function compareKeys(key1, key2) {
+        // Extrahiere den Base64-Inhalt
+        const keyContent1 = extractKeyContent(key1);
+        const keyContent2 = extractKeyContent(key2);
+
+        // Konvertiere Base64 in Bytes
+        const bytes1 = atob(keyContent1).split('').map(c => c.charCodeAt(0));
+        const bytes2 = atob(keyContent2).split('').map(c => c.charCodeAt(0));
+
+        // Vergleiche Byte für Byte
+        const differences = [];
+        const maxLength = Math.max(bytes1.length, bytes2.length);
+        for (let i = 0; i < maxLength; i++) {
+            if (bytes1[i] !== bytes2[i]) {
+                differences.push({ index: i, byte1: bytes1[i], byte2: bytes2[i] });
+            }
+        }
+        return differences;
+    }
+
+    function showKeyPairDifferencies(privateKey1, publicKey1, privateKey2, publicKey2) {
+        let differences = compareKeys(privateKey1, privateKey2);
+        console.log('Unterschiede:', differences);
+        differences = compareKeys(publicKey1, publicKey2);
+        console.log('Unterschiede:', differences);
+    }
+
+    //generateTestKeyPairs();
+    //simpleCompareKeys(privateKey1, publicKey1, privateKey2, publicKey2);
+    //showKeyPairDifferencies(privateKey1, publicKey1, privateKey2, publicKey2);
+    // END TESTZONE //
+
+    switchTheme();
+</script>
