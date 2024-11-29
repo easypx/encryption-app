@@ -27,12 +27,12 @@
             </div>
             <p>1. Generate a new asychronous key pair.</p>
             <label class="w3-text-blue"><b>Public Key</b></label>
-            <input class="w3-input w3-border" type="text" id="public-key">
-            <p>2. Store the Public Key as a text file "public-key.pem" to user account, then send this file to your
+            <input class="w3-input w3-border w3-round" type="text" id="public-key">
+            <p>2. Store the Public Key as a text file "public-key.pem" to user account. Pack it as Zip, then send this file to your
                 communication partner via private communication channel regarding "Please send me the encrypted fractal
                 key".</p>
             <label class="w3-text-blue"><b>Private Key</b></label>
-            <input class="w3-input w3-border" type="text" id="private-key">
+            <input class="w3-input w3-border w3-round" type="text" id="private-key">
             <p>3. Store the Private Key as a text file "private-key.pem" to your user account. Do not send this key
                 to other people. <b>KEEP IT SECRET!</b>
                 This key decrypts the fractal key, which you get from your communication partner.</p>
@@ -41,7 +41,7 @@
         </section>
         <section class="w3-container">
             <label class="w3-text-blue"><b>Message</b></label>
-            <input class="w3-input w3-border" type="text" id="message">
+            <input class="w3-input w3-border w3-round" type="text" id="message">
             <p>4. Decrypt the encrypted fractal key, which you got from your communication partner. The fractal key
                 should
                 look like a hexadecimal string and can now be used as synchronous key in the fractal encryption app for
@@ -60,7 +60,7 @@
             <hr>
         </section>
 
-        <div class="w3-container w3-teal">
+        <footer class="w3-container w3-teal w3-round">
             <h5>2024 Klangraum</h5>
             <p>Part of Star Trek 8 Fractal Encryption</p>
             <a href="datenschutzerklärung.html" target="_blank" style="color: aliceblue;text-decoration: none;">
@@ -68,7 +68,7 @@
             </a> / <a href="nutzungsbedingungen.html" target="_blank" style="color: aliceblue;text-decoration: none;">
                 Nutzungsbedingungen
             </a>
-        </div>
+        </footer>
     </div>
 </body>
 <script>
